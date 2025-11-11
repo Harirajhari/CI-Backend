@@ -19,7 +19,7 @@ jobs:
 
     env:
       PORT: ${{ secrets.PORT }}
-      NODE_ENV: ${{ secrets.NODE_ENV }}
+      NODE_ENV: ci
       CLIENT_ID: ${{ secrets.CLIENT_ID }}
       CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
       TENANT_ID: ${{ secrets.TENANT_ID }}
@@ -48,10 +48,9 @@ jobs:
           node-version: "20.x"
           cache: "npm"
 
-      # ✅ Skip Prisma in postinstall (CI runs it manually later)
+      # ✅ Install dependencies with NODE_ENV=ci (skips postinstall automatically)
       - name: 📦 Install dependencies
-        run: npm ci
-
+        run: NODE_ENV=ci npm ci
 
       # ✅ Prisma Schema Validation
       - name: 🧩 Validate Prisma schema
