@@ -51,7 +51,7 @@ jobs:
           cache: "npm"
 
       # 📦 Install dependencies with NODE_ENV=ci (skip prisma postinstall)
-      - name: Install dependencies
+      - name: 📦 Install dependencies
         run: NODE_ENV=ci npm ci
 
       # 🧩 Validate Prisma schema
