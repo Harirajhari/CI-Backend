@@ -11,7 +11,7 @@
     "lint": "eslint . --ext .ts",
     "test": "jest --passWithNoTests --runInBand",
     "format": "prettier --write .",
-    "postinstall": "prisma generate && prisma migrate deploy"
+    "postinstall": "if [ \"$NODE_ENV\" != \"ci\" ]; then prisma generate && prisma migrate deploy; fi"
   },
   "dependencies": {
     "@azure/msal-node": "^3.8.1",
