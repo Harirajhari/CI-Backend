@@ -9,7 +9,7 @@
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/index.js",
     "lint": "eslint . --ext .ts",
-    "test": "jest --passWithNoTests --runInBand",
+    "test": "jest --passWithNoTests --runInBand --coverage",
     "format": "prettier --write .",
     "postinstall": "if [ \"$NODE_ENV\" != \"ci\" ]; then prisma generate && prisma migrate deploy; fi"
   },
