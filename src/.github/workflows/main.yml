@@ -52,6 +52,9 @@ jobs:
       - name: 📦 Install dependencies
         run: npm ci
 
+      # ------------------------------------------
+      # 🧩 PRISMA DATABASE STEPS (TEMPORARILY DISABLED)
+      # ------------------------------------------
       # - name: 🧩 Validate Prisma schema
       #   run: npx prisma validate
       #   env:
@@ -61,6 +64,7 @@ jobs:
       #   run: npx prisma generate
       #   env:
       #     DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://postgres:YcKCtSVJPwfQARiPcxsxYuQewCAWEZiJ@switchyard.proxy.rlwy.net:51888/postgres' }}
+      # ------------------------------------------
 
       - name: 🧮 Type check
         run: npx tsc --noEmit
