@@ -18,14 +18,15 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      PORT: ${{ secrets.PORT }}
-      NODE_ENV: ci
+      PORT: ${{ secrets.PORT || 3000 }}
+      NODE_ENV: ${{ secrets.NODE_ENV || 'test' }}
       CLIENT_ID: ${{ secrets.CLIENT_ID }}
       CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
       TENANT_ID: ${{ secrets.TENANT_ID }}
       REDIRECT_URI: ${{ secrets.REDIRECT_URI }}
       FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
       ALLOWED_DOMAINS: ${{ secrets.ALLOWED_DOMAINS }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
       DB_HOST_NAME: ${{ secrets.DB_HOST_NAME }}
       DB_PORT: ${{ secrets.DB_PORT }}
       DB_USERNAME: ${{ secrets.DB_USERNAME }}
@@ -39,51 +40,35 @@ jobs:
         working-directory: ./
 
     steps:
-      # 🧾 Checkout repository
-      - name: Checkout repository
+      - name: 🧾 Checkout repository
         uses: actions/checkout@v4
 
-      # 🟩 Setup Node.js
-      - name: Setup Node.js
+      - name: 🟩 Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20.x"
           cache: "npm"
 
-      # 📦 Install dependencies with NODE_ENV=ci (skip prisma postinstall)
       - name: 📦 Install dependencies
-        run: NODE_ENV=ci npm ci
+        run: npm ci
 
-      # 🧩 Validate Prisma schema
-      - name: Validate Prisma schema
-        run: |
-          export DATABASE_URL="${{ secrets.DATABASE_URL }}"
-          if [ -z "$DATABASE_URL" ]; then
-            echo "⚠️ DATABASE_URL not found in secrets, using fallback URL"
-            export DATABASE_URL="postgresql://postgres:YcKCtSVJPwfQARiPcxsxYuQewCAWEZiJ@switchyard.proxy.rlwy.net:51888/postgres"
-          fi
-          npx prisma validate
+      # - name: 🧩 Validate Prisma schema
+      #   run: npx prisma validate
+      #   env:
+      #     DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://postgres:YcKCtSVJPwfQARiPcxsxYuQewCAWEZiJ@switchyard.proxy.rlwy.net:51888/postgres' }}
 
-      # 🧠 Generate Prisma client
-      - name: Generate Prisma client
-        run: |
-          export DATABASE_URL="${{ secrets.DATABASE_URL }}"
-          if [ -z "$DATABASE_URL" ]; then
-            echo "⚠️ DATABASE_URL not found in secrets, using fallback URL"
-            export DATABASE_URL="postgresql://postgres:YcKCtSVJPwfQARiPcxsxYuQewCAWEZiJ@switchyard.proxy.rlwy.net:51888/postgres"
-          fi
-          npx prisma generate
+      # - name: 🧠 Generate Prisma client
+      #   run: npx prisma generate
+      #   env:
+      #     DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://postgres:YcKCtSVJPwfQARiPcxsxYuQewCAWEZiJ@switchyard.proxy.rlwy.net:51888/postgres' }}
 
-      # 🧮 Type checking
-      - name: Type check
+      - name: 🧮 Type check
         run: npx tsc --noEmit
 
-      # 🧪 Run Jest unit tests with coverage
-      - name: Run Jest tests
-        run: npm test
+      - name: 🧪 Run Jest tests
+        run: npm test -- --coverage
 
-      # 📤 Upload coverage artifacts (optional)
-      - name: Upload coverage report
+      - name: 📤 Upload coverage report
         if: always()
         uses: actions/upload-artifact@v4
         with:

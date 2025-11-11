@@ -9,9 +9,9 @@
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/index.js",
     "lint": "eslint . --ext .ts",
-    "test": "jest --passWithNoTests --runInBand --coverage",
+    "test": "jest --passWithNoTests --runInBand",
     "format": "prettier --write .",
-    "postinstall": "if [ \"$NODE_ENV\" != \"ci\" ]; then prisma generate && prisma migrate deploy; fi"
+    "postinstall": "prisma generate && prisma migrate deploy"
   },
   "dependencies": {
     "@azure/msal-node": "^3.8.1",
