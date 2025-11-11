@@ -1,0 +1,105 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name       String
+  created_at DateTime @default(now())
+
+  users User[]
+}
+
+model User {
+  id           String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  org_id       String       @db.Uuid
+  organization Organization @relation(fields: [org_id], references: [id], onDelete: Cascade)
+
+  email                      String           @unique
+  password_hash              String
+  username                   String?
+  first_name                 String?
+  last_name                  String?
+  full_name                  String?          @ignore // this field is defined in raw SQL migration file.
+  phone_work                 String?
+  phone_personal             String?
+  title_job                  String?
+  department_name            String?
+  role                       String?
+  persona_type               String?
+  employment_status          String?          @default("active")
+  mfa_enabled                Boolean          @default(false)
+  mfa_method                 String?
+  mfa_phone                  String?
+  mfa_email                  String?
+  backup_codes               String?
+  active                     Boolean          @default(true)
+  status                     String?          @default("active")
+  last_login                 DateTime?
+  last_login_ip              String?
+  last_login_user_agent      String?
+  password_changed_at        DateTime?
+  mfa_enabled_at             DateTime?
+  failed_login_attempts      Int              @default(0)
+  failed_login_lockout_until DateTime?
+  entra_id                   String           @unique @db.Uuid
+  entra_upn                  String?
+  preferred_language         String?          @default("en")
+  profile_preferences        Json?
+  timezone                   String?          @default("America/New_York")
+  gdpr_consent               Boolean          @default(false)
+  marketing_consent          Boolean          @default(false)
+  gdpr_consent_date          DateTime?
+  created_at                 DateTime         @default(now())
+  updated_at                 DateTime         @updatedAt
+  deleted_at                 DateTime?
+  employeeProfile            EmployeeProfile?
+
+  @@unique([org_id, email])
+}
+
+model EmployeeProfile {
+  id      String @id @default(uuid()) @db.Uuid
+  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id String @unique @db.Uuid
+
+  employee_name String?
+  age           Int?
+  gender        String?
+  role          String?
+  company       String?
+  location      String?
+  contact_email String?
+  contact_phone String?
+
+  // health snapshot
+  height           String?
+  weight           String?
+  BMI              String?
+  exercise_routine String?
+  fasting_window   String?
+  sleep_schedule   String?
+  faith_routine    String?
+
+  // lifestyle
+  smoking                 String?
+  alcohol_use             String?
+  exercise_hours_per_week String?
+  diet_style              String?
+  sleep_hours             String?
+  faith_preference        String?
+  stress_level            Int?
+
+  // ! add family history fields
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("employee_profiles")
+}

@@ -1,0 +1,15 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "RAPHA API Docs",
+    "description": "API for RAPHA Platform.",
+    "version": "0.0.1"
+  },
+  "servers": [
+    { "url": "https://rapha-api.vercel.app", "description": "Eureka API" },
+    { "url": "http://localhost:3000", "description": "Local Development Server" }
+  ],
+  "basePath": "/",
+  "schemes": ["https", "http"],
+  "paths": {}
+}
