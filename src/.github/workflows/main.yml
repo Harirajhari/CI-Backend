@@ -14,24 +14,33 @@ on:
 
 jobs:
   # -----------------------------
-  # 🧱 BUILD + TYPE CHECK JOB
+  # 🧱 BUILD + PRISMA + TYPE CHECK
   # -----------------------------
   build:
-    name: 🧱 Build & Type Check
+    name: 🧱 Build, Prisma Validate & Type Check
     runs-on: ubuntu-latest
 
     env:
       NODE_ENV: test
       PORT: ${{ secrets.PORT }}
+      CLIENT_ID: ${{ secrets.CLIENT_ID }}
+      CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+      TENANT_ID: ${{ secrets.TENANT_ID }}
+      REDIRECT_URI: ${{ secrets.REDIRECT_URI }}
+      FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+      ALLOWED_DOMAINS: ${{ secrets.ALLOWED_DOMAINS }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DB_HOST_NAME: ${{ secrets.DB_HOST_NAME }}
+      DB_PORT: ${{ secrets.DB_PORT }}
+      DB_USERNAME: ${{ secrets.DB_USERNAME }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      VERBOSE_AUTH_LOGS: ${{ secrets.VERBOSE_AUTH_LOGS }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      SECURE_COOKIE: ${{ secrets.SECURE_COOKIE }}
 
     steps:
       - name: 🧾 Checkout repository
         uses: actions/checkout@v4
-
-      # ✅ Skip Prisma postinstall in CI
-      - name: 🩵 Skip Prisma postinstall in CI
-        run: npm pkg set scripts.postinstall="echo '⏭️ Skipping Prisma generate in CI'"
 
       - name: 🟩 Setup Node.js
         uses: actions/setup-node@v4
@@ -42,10 +51,20 @@ jobs:
       - name: 📦 Install dependencies
         run: npm ci
 
+      - name: 🧩 Validate Prisma schema
+        run: npx prisma validate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: 🧠 Generate Prisma client
+        run: npx prisma generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
       - name: 🧮 Type check
         run: npx tsc --noEmit
 
-      - name: 📤 Upload workspace for next jobs
+      - name: 📤 Upload build workspace
         uses: actions/upload-artifact@v4
         with:
           name: workspace
@@ -58,12 +77,25 @@ jobs:
   test:
     name: 🧪 Run Jest Tests
     runs-on: ubuntu-latest
-    needs: build  # ✅ wait for build job to complete first
+    needs: build  # ✅ Wait for build job
 
     env:
       NODE_ENV: test
       PORT: ${{ secrets.PORT }}
+      CLIENT_ID: ${{ secrets.CLIENT_ID }}
+      CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+      TENANT_ID: ${{ secrets.TENANT_ID }}
+      REDIRECT_URI: ${{ secrets.REDIRECT_URI }}
+      FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+      ALLOWED_DOMAINS: ${{ secrets.ALLOWED_DOMAINS }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DB_HOST_NAME: ${{ secrets.DB_HOST_NAME }}
+      DB_PORT: ${{ secrets.DB_PORT }}
+      DB_USERNAME: ${{ secrets.DB_USERNAME }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      VERBOSE_AUTH_LOGS: ${{ secrets.VERBOSE_AUTH_LOGS }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      SECURE_COOKIE: ${{ secrets.SECURE_COOKIE }}
 
     steps:
       - name: 🧾 Checkout repository
@@ -77,6 +109,11 @@ jobs:
 
       - name: 📦 Install dependencies
         run: npm ci
+
+      - name: 🧠 Generate Prisma client
+        run: npx prisma generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: 🧪 Run Jest tests with coverage
         run: npm test -- --coverage
