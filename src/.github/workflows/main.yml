@@ -1,4 +1,4 @@
-name: Backend CI (Node + TypeScript + Tests)
+name: Backend CI (Node + TypeScript + Jest)
 
 on:
   push:
@@ -8,6 +8,7 @@ on:
       - "tests/**"
       - "package.json"
       - "tsconfig*.json"
+      - "prisma/**"
   pull_request:
     branches: [ main, develop ]
 
@@ -16,9 +17,27 @@ jobs:
     name: 🧪 Run Backend Tests
     runs-on: ubuntu-latest
 
+    env:
+      PORT: ${{ secrets.PORT }}
+      NODE_ENV: ${{ secrets.NODE_ENV }}
+      CLIENT_ID: ${{ secrets.CLIENT_ID }}
+      CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+      TENANT_ID: ${{ secrets.TENANT_ID }}
+      REDIRECT_URI: ${{ secrets.REDIRECT_URI }}
+      FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+      ALLOWED_DOMAINS: ${{ secrets.ALLOWED_DOMAINS }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DB_HOST_NAME: ${{ secrets.DB_HOST_NAME }}
+      DB_PORT: ${{ secrets.DB_PORT }}
+      DB_USERNAME: ${{ secrets.DB_USERNAME }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      VERBOSE_AUTH_LOGS: ${{ secrets.VERBOSE_AUTH_LOGS }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      SECURE_COOKIE: ${{ secrets.SECURE_COOKIE }}
+
     defaults:
       run:
-        working-directory: ./        # root of your backend repo
+        working-directory: ./
 
     steps:
       - name: Checkout repository
@@ -33,11 +52,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Validate Prisma schema
+        run: npx prisma validate
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
       - name: Type check
         run: npx tsc --noEmit
 
       - name: Run Jest tests
-        run: npm test
+        run: npm test -- --coverage
 
       - name: Upload coverage report
         if: always()
